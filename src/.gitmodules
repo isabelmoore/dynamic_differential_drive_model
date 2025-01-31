@@ -1,0 +1,9 @@
+[submodule "scripts/path_following"]
+    path = scripts/path_following
+    url = https://github.com/tamu-edu/afcagc_path-following.git
+[submodule "scripts/vehicle_models"]
+	path = scripts/vehicle_models
+	url = https://github.com/tamu-edu/afcagc_vehicle-models.git
+[submodule "scripts/scripts/vehicle_models"]
+	path = scripts/scripts/vehicle_models
+	url = https://github.com/tamu-edu/afcagc_vehicle-models.git

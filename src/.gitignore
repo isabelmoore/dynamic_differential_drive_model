@@ -1,0 +1,15 @@
+# Python
+env
+__pycache__
+*.pyc
+
+# Vim
+*.swp
+
+# Training data
+models
+logs
+logs.monitor.csv
+
+# Plugin build
+build

@@ -1,0 +1,12 @@
+pyyaml
+rospkg
+numpy
+gym
+matplotlib
+tensorboard
+scikit-build
+cmake
+stable-baselines3
+scipy
+torch
+tensorflow

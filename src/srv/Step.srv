@@ -1,0 +1,4 @@
+float64 seconds # simulation time
+geometry_msgs/Twist command # action
+---
+nav_msgs/Odometry odometry # state/observation

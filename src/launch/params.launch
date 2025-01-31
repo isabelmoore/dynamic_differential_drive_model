@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Arguments -->
+  <arg name="param_file" default="$(find gym_gazebo)/param/param.yaml"
+    doc="Parameter file"/>
+  <arg name="log_dir" default="$(find gym_gazebo)/logs"
+    doc="Log directory"/>
+  <arg name="model_dir" default="$(find gym_gazebo)/models"
+    doc="Model directory"/>
+  <arg name="action" default="evaluate" doc="train or evaluate"/>
+  <arg name="use_model" default="True" doc="Use model for training"/>
+  <arg name="namespace" default="rl_env" doc="Namespace"/>
+
+  <!-- Parameters -->
+  <group ns="$(arg namespace)">
+    <rosparam file="$(arg param_file)"/>
+    <param name="log_dir" value="$(arg log_dir)"/>
+    <param name="model_dir" value="$(arg model_dir)"/>
+    <param name="action" value="$(arg action)"/>
+    <param name="use_model" value="$(arg use_model)"/>
+  </group>
+</launch>
