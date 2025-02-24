@@ -4,7 +4,7 @@ cmake
 scipy
 tensorflow
 
-gym==0.26.2
+gym==0.21
 gym-notices==0.0.8
 gymnasium==0.29.1
 matplotlib==3.7.5

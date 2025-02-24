@@ -102,6 +102,9 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
+#export MPLBACKEND=TKAgg
+#export
+#    GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:$(pwd)
 #source /opt/ros/noetic/setup.bash
 alias sc='. ~/gym_gazebo_docker/devel/setup.bash'
 alias build='cd ~/gym_gazebo_docker && catkin build && sc'

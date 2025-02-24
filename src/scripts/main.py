@@ -66,7 +66,6 @@ def evaluate(model_path, episodes=50):
         episode_reward = 0
         while not done and not rospy.is_shutdown():
             action, obs = model.predict(obs, deterministic=True)
-            # action = [0.01,0.005]
             obs, reward, done, info = env.step(action)
             episode_reward += reward
             if done:

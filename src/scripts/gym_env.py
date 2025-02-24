@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 # ROS
-#import rospy
+import rospy
 #import tf # does not work for Python3
-#from nav_msgs.msg import Odometry
-#from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Twist
 #from std_srvs.srv import Empty
 #from controller_manager_msgs.srv import (SwitchController,
 #        SwitchControllerRequest, SwitchControllerResponse)
@@ -20,8 +20,8 @@ from scipy.spatial.transform import Rotation
 import dubins
 
 
-#import matplotlib
-#matplotlib.use('TkAgg')
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import logging
 
@@ -30,8 +30,8 @@ from vehicle_models_copy.differential_drive_model import DifferentialDriveModel
 # import environment as env
 from path_following.pure_pursuit import PurePursuit 
 from pid import PID
-# from vehicle_models_copy.bicycle_model import BicycleModel
-from vehicle_models_copy.dynamic_differential_drive_model import BicycleModel
+from vehicle_models_copy.bicycle_model import BicycleModel
+# from vehicle_models_copy.dynamic_differential_drive_model import BicycleModel
 
 import unittest
 
@@ -166,6 +166,10 @@ class MobileRobotPathTrackEnv(gym.Env):
             observation_lookahead=2.5, use_dubins=False, use_seed=False,
             evaluate=False,radiusOfCBin=1):
         # Yaw controller frequency in AGC stack is 50 Hz
+        
+        ## Uncommnet to publish topics to jackals
+        # rospy.init_node('gym_env')
+        # self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 
         self.radiusOfCBin = radiusOfCBin
         self.yaw_controller_frequency = yaw_controller_frequency
@@ -484,9 +488,11 @@ class MobileRobotPathTrackEnv(gym.Env):
         curvature, lookahead_point, closest_distance = self.ppc.run(self.pose[:3])
         delta = math.atan(curvature * (self.lf + self.lr))
         delta = np.clip(delta,-math.pi/4,math.pi/4)
+        
+        
 
         # print("\n\n\n\n Actions : ",velocitySetPoint,lookahead_point_input)
-        return desiredTorque,delta,lookahead_point_input,velocitySetPoint
+        return desiredTorque,delta,lookahead_point_input,velocitySetPoint,curvature
 
 
     def step(self, action):
@@ -494,10 +500,18 @@ class MobileRobotPathTrackEnv(gym.Env):
         #if(self.episode_steps > 150):
         #    self.friction_surface = 0.1
         """Get the desired action and pass it as an input to the model"""
-        desiredTorque,delta,lookahead_point_input,velSetPoint = self.compute_inputs(action)
+        desiredTorque,delta,lookahead_point_input,velSetPoint,curvature = self.compute_inputs(action)
         self.delta_steering = delta
         self.actions = np.array([desiredTorque,delta])
         self.weights = np.array([action[2],action[3],action[4],action[5]])
+        
+
+        # uncomment to publish to jackal
+        # msg = Twist()
+        # msg.linear.x = velSetPoint
+        # msg.angular.z = curvature*velSetPoint
+        # self.pub.publish(msg)
+
         """Call the updated Runge-Kutta 4th order dynamic model"""
         self.pose, f_trac, f_roll, f_drag, slip_ratio, F_f, F_r, alpha_f, alpha_r \
             = self.model.step_dynamic_torque_scipy_rk(self.pose, (desiredTorque, delta), \

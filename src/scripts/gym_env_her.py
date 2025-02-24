@@ -16,8 +16,7 @@ import math
 import random
 from scipy.spatial.transform import Rotation
 
-#import matplotlib
-#matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 
 from differential_drive_model import DifferentialDriveModel

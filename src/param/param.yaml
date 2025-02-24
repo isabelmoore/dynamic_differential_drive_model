@@ -1,2 +1,2 @@
-model_name: "sac_dmtc_July6_bin_2_1_vel&la_1238_best"
+model_name: "MetaL_10H_Oct16_best__best_reward_10000"
 timesteps: 5000000

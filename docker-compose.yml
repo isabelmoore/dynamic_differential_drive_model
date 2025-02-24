@@ -8,8 +8,8 @@ services:
     user: user
     environment:
       # Linux
-      #- DISPLAY=${DISPLAY}
-      #- XAUTHORITY=${XAUTHORITY} # not sure if this is actually needed
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY} # not sure if this is actually needed
 
       # Windows 10/11 using WSLg (part of WSL2)
       - DISPLAY
@@ -28,8 +28,8 @@ services:
       - ./docker/.bashrc:/home/user/.bashrc
 
       # Windows Display forwarding
-      - /mnt/wslg:/mnt/wslg
-      - /tmp/.X11-unix:/tmp/.X11-unix
+      #- /mnt/wslg:/mnt/wslg
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
 
       # Other folders you may want to volume in
       #- /home/$USER/.ros/:/home/user/.ros/

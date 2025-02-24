@@ -53,9 +53,12 @@ RUN apt-get update && apt-get install -y \
     ros-noetic-catkin \
     ros-noetic-gazebo-ros-pkgs \
     ros-noetic-gazebo-ros-control \
-    ros-noetic-jackal-gazebo\
+    ros-noetic-jackal-simulator \
+    ros-noetic-jackal-desktop \
+    ros-noetic-jackal-navigation \
     && rm -rf /var/lib/apt/lists/*
-    
+
+# ros-noetic-jackal-gazebo\    
 # Install python3 packages
 #RUN python3 -m pip install --upgrade pip
 RUN pip3 install \
@@ -74,6 +77,11 @@ RUN pip3 install \
     stable-baselines3==1.5.0\
     torch==2.4.1\
     dubins
+
+# Install Matplot GUI backends
+RUN apt-get update
+RUN apt-get install -y python3.8-tk
+RUN apt-get install -y python3-pil python3-pil.imagetk
 
 # Create user
 RUN groupadd -g $GID $UNAME
