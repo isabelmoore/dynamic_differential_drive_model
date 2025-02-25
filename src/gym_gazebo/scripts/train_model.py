@@ -26,7 +26,7 @@ def train(model_path, log_dir, timesteps=500000):
     env = MobileRobotPathTrackEnv(timestep=1e-1, yaw_controller_frequency=50,
             path_length=100, trajectory_length=15, velocity=1.0,
             observation_lookahead=100, use_dubins=True, use_seed=False,
-            evaluate=False,radiusOfCBin=2)
+            evaluate=False,radiusOfCBin=2,use_model=True)
     Path("models").mkdir(parents=True, exist_ok=True)
 
     #env.seed(0) # set seed
