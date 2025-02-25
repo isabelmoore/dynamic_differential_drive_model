@@ -6,6 +6,7 @@ import rospy
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
+from sensor_msgs.msg import JointState
 #from controller_manager_msgs.srv import (SwitchController,
 #        SwitchControllerRequest, SwitchControllerResponse)
 #from gym_gazebo.srv import Step, StepRequest, StepResponse
@@ -34,6 +35,8 @@ from vehicle_models_copy.bicycle_model import BicycleModel
 # from vehicle_models_copy.dynamic_differential_drive_model import BicycleModel
 
 import unittest
+
+
 #### Useful functions for simualting with gazebo during the evalaution! 
 def reset_world():
     rospy.wait_for_service('/gazebo/reset_world')
@@ -55,12 +58,12 @@ def reset_simulation():
         return False
     return True
 
-def pose_twist_from_odometry(msg):
-    q = msg.pose.pose.orientation
+def pose_twist_from_odometry(odom):
+    q = odom.pose.pose.orientation
     r = Rotation.from_quat([q.x, q.y, q.z, q.w])
     roll, pitch, yaw = r.as_euler('xyz', degrees=False)
-    pose = np.array([msg.pose.pose.position.x, msg.pose.pose.position.y, yaw])
-    twist = np.array([msg.twist.twist.linear.x, msg.twist.twist.angular.z])
+    pose = np.array([odom.pose.pose.position.x, odom.pose.pose.position.y, yaw])
+    twist = np.array([odom.twist.twist.linear.x,odom.twist.twist.linear.y, odom.twist.twist.angular.z])
     return pose, twist
 
 ############################################################################
@@ -287,10 +290,19 @@ class MobileRobotPathTrackEnv(gym.Env):
         """Scaling Factor"""
         self.scalingFactor = self.path_length_dubins * 10.0
     
-    
+    ## ros initialization and callbacks ###########################
     def ros_init(self):
         rospy.init_node('rl_env')
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+        rospy.Subscriber('/odometry/filtered', Odometry, self.odom_callback)
+        rospy.Subscriber('/joint_states',JointState,self.joint_callback)
+
+    def odom_callback(self,data):
+        self.odometry = data
+    
+    def joint_callback(self,data):
+        self.wheel_speed = (data.velocity[0]+data.velocity[1])/2
+    ##############################################################
 
 
     """Observation function"""
@@ -360,6 +372,10 @@ class MobileRobotPathTrackEnv(gym.Env):
         return obs
 
     def reset(self):
+
+        if not self.use_model:
+            reset_world()
+            
         # Reset pose
         self.pose = np.zeros(7) #Bicycle model dynamic model
         self.prevPose = np.zeros(7) #Bicycle model dynamic model previous pose
@@ -550,11 +566,14 @@ class MobileRobotPathTrackEnv(gym.Env):
             command.linear.x = velSetPoint
             command.angular.z = curvature*velSetPoint
             self.pub.publish(command)
-            #self.pose, self.twist = pose_twist_from_odometry(odometry)
-
-        
-        """Call the updated Runge-Kutta 4th order dynamic model"""
-        self.pose, f_trac, f_roll, f_drag, slip_ratio, F_f, F_r, alpha_f, alpha_r \
+            pose, twist = pose_twist_from_odometry(self.odometry)
+            self.pose = np.array([pose[0],pose[1],twist[0],twist[1],pose[2],twist[2],self.wheel_speed])
+            print(self.pose.shape)
+            f_trac, f_roll, f_drag, slip_ratio, F_f, F_r, alpha_f, alpha_r = 0,0,0,0,0,0,0,0
+            
+        else:
+            """Call the updated Runge-Kutta 4th order dynamic model"""
+            self.pose, f_trac, f_roll, f_drag, slip_ratio, F_f, F_r, alpha_f, alpha_r \
                 = self.model.step_dynamic_torque_scipy_rk(self.pose, (desiredTorque, delta), \
                     timestep = self.timestep,t_init = self.t_current, \
                         t_bound = self.t_current + self.timestep,lambda_friction=self.friction_surface)
