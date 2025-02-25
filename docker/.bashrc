@@ -108,4 +108,5 @@ fi
 #source /opt/ros/noetic/setup.bash
 alias sc='. ~/gym_gazebo_docker/devel/setup.bash'
 alias build='cd ~/gym_gazebo_docker && catkin build && sc'
+alias sim='roslaunch jackal_gazebo empty_world.launch'
 

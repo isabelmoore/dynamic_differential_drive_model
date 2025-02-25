@@ -49,13 +49,14 @@ def train(model_path, log_dir, timesteps=500000):
 '''
 Load model and evaluate
 '''
-def evaluate(model_path, episodes=50):
+def evaluate(model_path, episodes=50,use_model=True):
     # Create environment
     env = MobileRobotPathTrackEnv(timestep=1e-1, yaw_controller_frequency=50,
             path_length=250, trajectory_length=15, velocity=1.0,
             observation_lookahead=100, use_dubins=True, use_seed=True,
-            evaluate=True,radiusOfCBin=5)
-
+            evaluate=True,radiusOfCBin=5,use_model=use_model)
+    if not use_model:
+        env.ros_init()
     # model = PPO.load(model_path)
     model = SAC.load(model_path)
     total_rewards = 0
@@ -170,12 +171,14 @@ if __name__ == '__main__':
     timesteps = rospy.get_param('rl_env/timesteps', 500000)
 
     action = rospy.get_param('rl_env/action', 'evaluate')
+    use_model = rospy.get_param('rl_env/use_model', True)
+
     model_path = model_dir + '/' + model_name
 
     if action == 'train':
         train(model_path, log_dir, timesteps=timesteps)
     elif action == 'evaluate':
-        evaluate(model_path, episodes=10)
+        evaluate(model_path, episodes=10,use_model=use_model)
     elif action == 'baseline':
         baseline()
     elif action == 'evaluate_ppc':

@@ -5,7 +5,7 @@ import rospy
 #import tf # does not work for Python3
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
-#from std_srvs.srv import Empty
+from std_srvs.srv import Empty
 #from controller_manager_msgs.srv import (SwitchController,
 #        SwitchControllerRequest, SwitchControllerResponse)
 #from gym_gazebo.srv import Step, StepRequest, StepResponse
@@ -34,6 +34,36 @@ from vehicle_models_copy.bicycle_model import BicycleModel
 # from vehicle_models_copy.dynamic_differential_drive_model import BicycleModel
 
 import unittest
+#### Useful functions for simualting with gazebo during the evalaution! 
+def reset_world():
+    rospy.wait_for_service('/gazebo/reset_world')
+    reset = rospy.ServiceProxy('/gazebo/reset_world', Empty)
+    try:
+        reset()
+    except rospy.ServiceException as ex:
+        rospy.logwarn('Gazebo reset unsuccessful: ' + str(ex))
+        return False
+    return True
+
+def reset_simulation():
+    rospy.wait_for_service('/gazebo/reset_simulation')
+    reset = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
+    try:
+        reset()
+    except rospy.ServiceException as ex:
+        rospy.logwarn('Gazebo reset unsuccessful: ' + str(ex))
+        return False
+    return True
+
+def pose_twist_from_odometry(msg):
+    q = msg.pose.pose.orientation
+    r = Rotation.from_quat([q.x, q.y, q.z, q.w])
+    roll, pitch, yaw = r.as_euler('xyz', degrees=False)
+    pose = np.array([msg.pose.pose.position.x, msg.pose.pose.position.y, yaw])
+    twist = np.array([msg.twist.twist.linear.x, msg.twist.twist.angular.z])
+    return pose, twist
+
+############################################################################
 
 def plot_init():
     plt.ion # interactive on
@@ -164,13 +194,9 @@ class MobileRobotPathTrackEnv(gym.Env):
     def __init__(self, timestep=0.1, yaw_controller_frequency=50,
             path_length=10.0, trajectory_length=15, velocity=1.0,
             observation_lookahead=2.5, use_dubins=False, use_seed=False,
-            evaluate=False,radiusOfCBin=1):
+            evaluate=False,radiusOfCBin=1,use_model=False):
         # Yaw controller frequency in AGC stack is 50 Hz
-        
-        ## Uncommnet to publish topics to jackals
-        # rospy.init_node('gym_env')
-        # self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
-
+    
         self.radiusOfCBin = radiusOfCBin
         self.yaw_controller_frequency = yaw_controller_frequency
         self.path_length_dubins = path_length
@@ -192,6 +218,13 @@ class MobileRobotPathTrackEnv(gym.Env):
         self.interval1 = self.path_length_dubins/10
         self.interval2 = self.interval1*2
         
+        #### Initialize ros node and publisher
+        self.use_model = use_model
+        if not self.use_model:
+            self.ros_init()
+        #########################
+
+
         self.seed = None
         if self.use_seed:
             self.seed = 8
@@ -254,6 +287,12 @@ class MobileRobotPathTrackEnv(gym.Env):
         """Scaling Factor"""
         self.scalingFactor = self.path_length_dubins * 10.0
     
+    
+    def ros_init(self):
+        rospy.init_node('rl_env')
+        self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+
+
     """Observation function"""
     def observe(self):
         obs = {}
@@ -505,16 +544,18 @@ class MobileRobotPathTrackEnv(gym.Env):
         self.actions = np.array([desiredTorque,delta])
         self.weights = np.array([action[2],action[3],action[4],action[5]])
         
+        if not self.use_model: 
+            # Take action
+            command = Twist()
+            command.linear.x = velSetPoint
+            command.angular.z = curvature*velSetPoint
+            self.pub.publish(command)
+            #self.pose, self.twist = pose_twist_from_odometry(odometry)
 
-        # uncomment to publish to jackal
-        # msg = Twist()
-        # msg.linear.x = velSetPoint
-        # msg.angular.z = curvature*velSetPoint
-        # self.pub.publish(msg)
-
+        
         """Call the updated Runge-Kutta 4th order dynamic model"""
         self.pose, f_trac, f_roll, f_drag, slip_ratio, F_f, F_r, alpha_f, alpha_r \
-            = self.model.step_dynamic_torque_scipy_rk(self.pose, (desiredTorque, delta), \
+                = self.model.step_dynamic_torque_scipy_rk(self.pose, (desiredTorque, delta), \
                     timestep = self.timestep,t_init = self.t_current, \
                         t_bound = self.t_current + self.timestep,lambda_friction=self.friction_surface)
         # print("Pose inside step after model step",self.pose)    
