@@ -55,4 +55,4 @@ def train(model_path, log_dir, timesteps=500000):
 
 if __name__ == '__main__':
 	# train(model_path='models/MetaL_10H_Oct16', log_dir='logs', timesteps=5000000)
-	train(model_path='models/MetaL_10H_Oct16', log_dir='logs', timesteps=5000000)
+	train(model_path='/home/root/models/MetaL_10K_03272015', log_dir='logs', timesteps=1000000)

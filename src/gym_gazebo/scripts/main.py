@@ -31,7 +31,7 @@ def train(model_path, log_dir, timesteps=500000,use_model=True):
     # Filepaths
     save_model_path = model_path + '_best_'
     final_model_path = model_path + '_final_'
-    print("Timesteps: ",timesteps)
+    print("save_model_path: ",save_model_path)
     save_callback = SaveCallback(1000, log_dir, save_model_path, verbose=True)
     # model = PPO("MultiInputPolicy", env, verbose=True, tensorboard_log=log_dir)
     model = SAC("MultiInputPolicy", env, verbose=True, tensorboard_log=log_dir)
@@ -166,7 +166,7 @@ def baseline(episodes=50):
 
 if __name__ == '__main__':
     log_dir = rospy.get_param('rl_env/log_dir', './logs')
-    model_dir = rospy.get_param('rl_env/model_dir', './models')
+    model_dir = rospy.get_param('rl_env/model_dir', '~/home/root/models') # Set in ./train_model.sh
     model_name = rospy.get_param('rl_env/model_name', 'model')
     timesteps = rospy.get_param('rl_env/timesteps', 500000)
 
@@ -174,7 +174,7 @@ if __name__ == '__main__':
     use_model = rospy.get_param('rl_env/use_model', True)
 
     model_path = model_dir + '/' + model_name
-
+    print("model_path",model_path)
     if action == 'train':
         train(model_path, log_dir, timesteps=timesteps)
     elif action == 'evaluate':

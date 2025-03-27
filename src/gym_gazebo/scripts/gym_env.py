@@ -496,7 +496,7 @@ class MobileRobotPathTrackEnv(gym.Env):
 
 
         reward = (10*reward_pose)  + reward_percentage + reward_percentage_torq
-        # print("Reward",reward)
+        #print("Reward",reward)
         return reward
 
 
@@ -611,21 +611,23 @@ class MobileRobotPathTrackEnv(gym.Env):
 
         if(self.dynamicPlot and self.episode_steps%10 == 0):
             self.plot_pose()
-
         done = False
         #if self.episode_steps == self.num_episode_steps:
         if (self.t_current >= self.finalSimTime):
             done = True
             reward = -100.0
-            print("Time limit reached, friction surface: ",self.friction_surface," episode rwd: ",self.episode_reward)
+            print("Time limit reached, friction surface: ",self.friction_surface," episode rwd: ",self.episode_reward, " timestep",self.timestep,"time_cureent",self.t_current)
+            # print("the posint reaches",self.pose[0], self.path[0][-1],self.pose, self.path)
+
             if(self.evaluate):
                 self.plot()
             return obs, reward, done, {}
         
         if (self.getL2norm(self.pose[0],self.pose[1],self.path[0][-1],self.path[1][-1]) < 7e0):
             done = True
-            reward = +1.0
-            print("Reached the end of the path in :",self.t_current,"seconds"," friction surface: ",self.friction_surface," episode rwd: ",self.episode_reward)
+            reward = +100.0
+            print("Reached the end of the path in :",self.t_current,"seconds"," friction surface: ",self.friction_surface," episode rwd: ",self.episode_reward, "post reward", reward)
+            print("the posint reaches",self.pose[0], self.path[0][-1])
             if(self.evaluate):
                 self.plot()
             return obs, reward, done, {}
@@ -648,6 +650,8 @@ class MobileRobotPathTrackEnv(gym.Env):
         info = {}
         # print("Step done")
         # print("Observation",obs)
+        # self.episode_reward += reward
+        #print("In each timestep reward",reward)
         return obs, reward, done, info
     
     def getL2norm(self,poseX,poseY,finalPointX,finalPointY):

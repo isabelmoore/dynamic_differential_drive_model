@@ -45,5 +45,5 @@ if __name__ == '__main__':
     #evaluate(model_path='models/MetaL_10H_Aug7_100m_best__best_reward_2460000', episodes=100)
     #evaluate(model_path='models/MetaL_10H_Aug7_100m_best__best_reward_10000', episodes=100)
     #evaluate(model_path='models/MetaL_10H_Oct10_best__best_reward_810000', episodes=100)
-    evaluate(model_path='models/MetaL_10H_Oct16_best__best_reward_10000', episodes=100)
+    evaluate(model_path='/home/root/models/MetaL_10H_Oct16MetaL_10K_03272015_best__best_reward_10000', episodes=100)
 
