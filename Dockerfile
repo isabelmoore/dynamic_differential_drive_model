@@ -1,7 +1,7 @@
 FROM nvidia/cuda:11.4.3-cudnn8-devel-ubuntu20.04
 
 # Args for User
-ARG UNAME=user
+ARG UNAME=user # If not specified it will run as root user. 
 ARG UID=1000
 ARG GID=1000
 
@@ -23,10 +23,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         nano \
         git \
         lsb-release
-        
+
 # setup sources.list
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-
 RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
     
 # install dependencies for building ros packages
@@ -78,30 +77,38 @@ RUN pip3 install \
     torch==2.4.1\
     dubins
 
+RUN apt-get update && apt-get install -y bash
+
 # Install Matplot GUI backends
 RUN apt-get update
 RUN apt-get install -y python3.8-tk
 RUN apt-get install -y python3-pil python3-pil.imagetk
 
-# Create user
-RUN groupadd -g $GID $UNAME
-RUN useradd -m -u $UID -g $GID -s /bin/bash $UNAME
 
-# Allow the user to run sudo without a password
-RUN echo "$UNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-USER $UNAME
 
 RUN LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs/:$LD_LIBRARY_PATH
 
 # Get Workspace Dependencies
-RUN mkdir -p ~/home/iea/gym_gazebo_docker/src
-COPY src /home/iea/gym_gazebo_docker/src
-RUN cd ~/home/iea/gym_gazebo_docker && \
+RUN mkdir -p ~/home/staff/s/saminmoosavi/gym_gazebo_docker/src
+COPY src /home/staff/s/saminmoosavi/gym_gazebo_docker/src
+RUN cd ~/home/staff/s/saminmoosavi/gym_gazebo_docker && \
     sudo apt update &&\
     rosdep update && \
     rosdep install --from-paths src --ignore-src -r -y
 
+
+# Create user
+#RUN groupadd -g $GID $UNAME
+#RUN useradd -m -u $UID -g $GID -s /bin/bash $UNAME
+
+# Allow the user to run sudo without a password
+#RUN echo "$UNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+#RUN echo "$UNAME ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers > /dev/null
+
+#USER $UNAME
+
+RUN echo 'source ~/.bashrc' >> ~/.bash_profile
+      
 # Copy entrypoint
 COPY docker/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]

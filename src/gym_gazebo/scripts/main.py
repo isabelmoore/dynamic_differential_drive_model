@@ -32,7 +32,7 @@ def train(model_path, log_dir, timesteps=500000,use_model=True):
     save_model_path = model_path + '_best_'
     final_model_path = model_path + '_final_'
     print("Timesteps: ",timesteps)
-    save_callback = SaveCallback(100000, log_dir, save_model_path, verbose=True)
+    save_callback = SaveCallback(1000, log_dir, save_model_path, verbose=True)
     # model = PPO("MultiInputPolicy", env, verbose=True, tensorboard_log=log_dir)
     model = SAC("MultiInputPolicy", env, verbose=True, tensorboard_log=log_dir)
     #model = PPO.load(final_model_path, env) # load from zip file

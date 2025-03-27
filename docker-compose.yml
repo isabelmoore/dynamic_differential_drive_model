@@ -4,8 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: gym_gezebo-container
-    image: gym_gazebo-20-noetic:latest
-    user: user
+    image: gym_gazebo-20-noetic:latestcd
     environment:
       # Linux
       - DISPLAY=${DISPLAY}
@@ -21,11 +20,11 @@ services:
       # - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       # - ROS_LOCALHOST_ONLY=1
       #- RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-      #- CYCLONEDDS_URI=file:///home/user/IEA_Target_Tracking/docker/rtk_cyclonedds.xml
+      #- CYCLONEDDS_URI=file:///home/user/IEA_Target_Tracking/cd ~docker/rtk_cyclonedds.xml
     volumes:
       # The repository files and the bashrc file
-      - ./:/home/user/gym_gazebo_docker/
-      - ./docker/.bashrc:/home/user/.bashrc
+      - ./:/home/root/gym_gazebo_docker
+      - ./docker/.bashrc:/home/root/.bashrc
 
       # Windows Display forwarding
       #- /mnt/wslg:/mnt/wslg
@@ -33,9 +32,9 @@ services:
 
       # Other folders you may want to volume in
       #- /home/$USER/.ros/:/home/user/.ros/
-      - /home/$USER/bags/:/home/user/bags/
+      #- /home/$USER/bags/:/home/staff/s/user/bags/
 
-    working_dir: /home/user/gym_gazebo_docker
+    working_dir: /home/root/gym_gazebo_docker
     privileged: true
     network_mode: host
     ipc: host
