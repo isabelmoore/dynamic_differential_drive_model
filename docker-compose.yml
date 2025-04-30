@@ -32,7 +32,7 @@ services:
 
       # Other folders you may want to volume in
       #- /home/$USER/.ros/:/home/user/.ros/
-      - /home/staff/s/saminmoosavi/models/:/home/root/models/
+      - /home/wizard/models/:/home/root/models/
 
     working_dir: /home/root/gym_gazebo_docker
     privileged: true
