@@ -83,8 +83,8 @@ Ensure you have built and source your environment for each terminal, following t
     python evaluate_model.py
     ```
 
-## Post-Processing and Tweaking:
-To alter the friction coefficient, alter lines `55-56` in file:
+## Friction Coefficient:
+To alter the friction oefficient, alter lines `55-56` in file:
 
 `gym_gazebo_docker/src/jackal/jackal_description/urdf/jackal.urdf.xacro`
 
