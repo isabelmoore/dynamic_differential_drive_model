@@ -64,7 +64,7 @@ To set up the Gym Gazebo Docker environment, follow these steps:
     ```
 
 ### Friction Coefficient:
-To alter the friction oefficient, alter lines `55-56` in file:
+To alter the friction coefficient, alter lines `55-56` in file:
 
 `gym_gazebo_docker/src/jackal/jackal_description/urdf/jackal.urdf.xacro`
 
@@ -73,13 +73,13 @@ https://classic.gazebosim.org/tutorials?tut=friction
 
 
 ## Running and Evaluating:
-Ensure you have built and source your environment for each terminal, following the previous step. 
+Ensure you have built and sourced your environment for each terminal, following the previous step. 
 
 1. Run Gazebo Simulation:
     ```bash
     sim
     ```
-    If on the Lambda computers and do not see the simulation opening, exit the container and run the following commands; otherwise skip:
+    If on the Lambda computers and do not see the simulation opening, exit the container and run the following commands; otherwise, skip:
     ```bash 
     xhost +local:root
 
