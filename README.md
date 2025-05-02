@@ -56,6 +56,30 @@ To set up the Gym Gazebo Docker environment, follow these steps:
 
 3. In another terminal, run `evaluate_model.py`
     ```bash
+    jackal
+    source /opt/conda/etc/profile.d/conda.sh
+    conda activate venv_gazebo
+    cd src/gym_gazebo/scripts
+    python evaluate_model.py
+    ```
+
+4. In short:
+    ```bash
+    jackal
+    source docker/.bashrc
+    sc
+    source /opt/conda/etc/profile.d/conda.sh
+    conda activate venv_gazebo
+    sim
+roslaunch jackal_gazebo spawn_jackal.launch
+roslaunch gazebo_ros empty_world.launch \
+  world_name:="$(find gym_gazebo)/worlds/empty_plugin.world" \
+  paused:=false
+roslaunch jackal_gazebo spawn_jackal.launch
+
+    jackal
+    source /opt/conda/etc/profile.d/conda.sh
+    conda activate venv_gazebo
     cd src/gym_gazebo/scripts
     python evaluate_model.py
     ```

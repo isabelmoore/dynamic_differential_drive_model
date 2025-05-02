@@ -281,8 +281,10 @@ class MobileRobotPathTrackEnv(gym.Env):
 
         self.pose = np.zeros(5)  # [x, y, yaw, wL, wR]
         self.odom_received = False
+        
+        # self.sub = rospy.Subscriber('/odometry/filtered', Odometry, self.odom_callback)
 
-        self.sub = rospy.Subscriber('/odometry/filtered', Odometry, self.odom_callback)
+        self.sub = rospy.Subscriber('/ground_truth/state', Odometry, self.odom_callback)
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 
     def seed(self, seed=None):
@@ -674,34 +676,52 @@ class MobileRobotPathTrackEnv(gym.Env):
         # print("Action: ", action)
         # Compute left/right torques
         tau_L, tau_R, headingError, _, _, vel_kp, omega_kp, psi_kp = self.compute_inputs(action)
-        self.delta_steering = headingError                              # for logging "steering angle"
+        self.delta_steering = headingError                              
         self.actions = np.array([tau_L, tau_R], dtype=np.float32)
         self.weights = np.array([action[2], action[3], action[4], action[5]])  
         self.gains = np.array([vel_kp, omega_kp, psi_kp], dtype=np.float32)
 
         # Call differential drive step
-        (next_state, f_trac, f_roll, f_drag, slip_ratio, F_f, F_r, alpha_f, alpha_r)  = self.model.step_dynamic_torque_scipy_rk(
-                    state=self.pose,
-                    control=(tau_L, tau_R),
-                    t_init=self.t_current,
-                    dt=self.timestep,
-                    t_bound=self.t_current+self.timestep
-                )
+        # (next_state, f_trac, f_roll, f_drag, slip_ratio, F_f, F_r, alpha_f, alpha_r)  = self.model.step_dynamic_torque_scipy_rk(
+        #             state=self.pose,
+        #             control=(tau_L, tau_R),
+        #             t_init=self.t_current,
+        #             dt=self.timestep,
+        #             t_bound=self.t_current+self.timestep,
+        #              lambda_friction=self.friction_surface
+        #         )
+        
+        # publish control commsands
+        TORQUE_SCALE = 75.0  
+        # print("Max Torque:", TORQUE_SCALE)
+        tau_L *= TORQUE_SCALE 
+        tau_R *= TORQUE_SCALE  
+        v  = 0.5 * self.model.r * (tau_L + tau_R)
+        wz = self.model.r / self.model.W * (tau_R - tau_L)
 
-        self.pose = next_state
+        cmd = Twist()
+        cmd.linear.x  = v
+        cmd.angular.z = wz
+        self.pub.publish(cmd)
+
+        # wait for Gazebo to simulate the result
+        rospy.sleep(self.timestep)
+
+
+        # self.pose = next_state
         
         self.current_vel = 0.5*self.model.r*(self.pose[3]+self.pose[4])
         self.poses.append(self.pose.copy())
 
-        # Log 
-        self.F_trac.append(f_trac)
-        self.F_roll.append(f_roll)
-        self.F_drag.append(f_drag)
-        self.lambda_.append(slip_ratio)
-        self.F_f.append(F_f)
-        self.F_r.append(F_r)
-        self.alpha_f.append(alpha_f*180/math.pi)
-        self.alpha_r.append(alpha_r*180/math.pi)
+        # # Log 
+        # self.F_trac.append(f_trac)
+        # self.F_roll.append(f_roll)
+        # self.F_drag.append(f_drag)
+        # self.lambda_.append(slip_ratio)
+        # self.F_f.append(F_f)
+        # self.F_r.append(F_r)
+        # self.alpha_f.append(alpha_f*180/math.pi)
+        # self.alpha_r.append(alpha_r*180/math.pi)
 
         self.sideSlipRatio.append(0.0)  # mock
         avg_torque = 0.5*(tau_L + tau_R)
@@ -725,14 +745,6 @@ class MobileRobotPathTrackEnv(gym.Env):
 
         if(self.dynamicPlot and self.episode_steps % 10 == 0):
             self.plot_pose()
-
-        v  = 0.5 * self.model.r * (self.pose[3] + self.pose[4])  # estimate velocity
-        wz = self.model.r / self.model.W * (self.pose[4] - self.pose[3])  # estimate yaw rate
-
-        cmd = Twist()
-        cmd.linear.x  = v
-        cmd.angular.z = wz
-        self.pub.publish(cmd)
         
         done = False 
 

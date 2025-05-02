@@ -106,7 +106,8 @@ class DifferentialDriveModel:
         longitudinal_stiffness=1500.0,              # [N], for driving/braking
         plot=False,
         controlObjects=None, 
-        title=None
+        title=None,
+        lambda_friction = 1.0
     ):
         # Vehicle geometry
         self.lf = center_to_front                   # [m] distance from CoM to front axle
@@ -161,7 +162,8 @@ class DifferentialDriveModel:
         self.f_trac_L = 0.0
         self.f_trac_R = 0.0
 
-
+        self.friction_coefficient = lambda_friction
+        
     @staticmethod
     def limit_yaw(yaw):
         """Wrap heading angle to [-pi, pi]."""

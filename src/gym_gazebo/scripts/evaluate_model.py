@@ -6,8 +6,8 @@ from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 
 #from gym_env_her import MobileRobotEnv
 # from gym_env import MobileRobotPathTrackEnv
-from gym_env_ddd import MobileRobotPathTrackEnv
-# from gym_env_ddd_gazebo import MobileRobotPathTrackEnv
+# from gym_env_ddd import MobileRobotPathTrackEnv
+from gym_env_ddd_gazebo import MobileRobotPathTrackEnv
 
 from callbacks import SaveCallback
 import matplotlib.pyplot as plt

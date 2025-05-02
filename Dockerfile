@@ -11,7 +11,8 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 ENV ROS_DISTRO noetic
 ENV CONDA_DIR /opt/conda
-ENV PATH=$CONDA_DIR/bin:$PATH
+# ENV PATH=/usr/bin:/bin:/usr/sbin:/sbin:$CONDA_DIR/bin:$PATH
+
 
 # Add ROS repo
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
@@ -56,11 +57,14 @@ RUN apt-get update && apt-get install -y curl lsb-release gnupg2 && \
 RUN rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO
 
+
 # install ROS base
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-ros-base=1.5.0-1* \
     && rm -rf /var/lib/apt/lists/*
 
+ENV CONDA_DIR=/opt/conda  
+ENV PATH=$CONDA_DIR/bin:$PATH
 
 # Install Miniconda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
@@ -83,7 +87,6 @@ RUN /opt/conda/bin/conda run -n venv_gazebo pip install \
         certifi==2025.1.31 \
         charset-normalizer==3.4.1 \
         cloudpickle==1.6.0 \
-        cmake==3.31.6 \
         contourpy==1.1.1 \
         cycler==0.12.1 \
         distro==1.9.0 \
@@ -167,7 +170,7 @@ RUN /opt/conda/bin/conda run -n venv_gazebo pip install \
         urllib3==2.2.3 \
         Werkzeug==3.0.6 \
         wrapt==1.17.2 \
-        zipp==3.20.2 
+        zipp==3.20.2
 
 RUN echo "conda activate venv_gazebo" >> ~/.bashrc
 
@@ -175,7 +178,12 @@ RUN echo "conda activate venv_gazebo" >> ~/.bashrc
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
+    python3-empy \
+    python3-catkin-pkg-modules \
+    python3-rospkg-modules \
     python3-dev \
+    ros-noetic-xacro \
+    python3-rosdep \
     python3-distutils \
     ros-noetic-catkin \
     ros-noetic-gazebo-ros-pkgs \

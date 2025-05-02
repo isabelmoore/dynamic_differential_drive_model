@@ -106,7 +106,8 @@ fi
 #export
 #    GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:$(pwd)
 #source /opt/ros/noetic/setup.bash
-alias sc='source /home/root/gym_gazebo_docker/devel/setup.bash'
+alias sc='source /opt/ros/noetic/setup.bash && source /home/root/gym_gazebo_docker/devel/setup.bash'
 alias build='cd /home/root/gym_gazebo_docker && catkin build && sc'
 alias sim='roslaunch jackal_gazebo empty_world.launch'
 
+export ROS_PACKAGE_PATH=/home/root/gym_gazebo_docker/src:$ROS_PACKAGE_PATH
