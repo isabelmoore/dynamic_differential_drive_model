@@ -42,8 +42,37 @@ To set up the Gym Gazebo Docker environment, follow these steps:
     conda activate venv_gazebo
     ```
 
+# Necessary Alterations to Jackal Packages
 
-## Running and Evaluating/Testing:
+### Ground Truth Plugin:
+1. To implement the Ground Truth ROS topic, locate file:
+`gym_gazebo_docker/src/jackal/jackal_description/urdf/jackal.gazebo`
+
+2. Add the following code, near the other plugins (around line `39`):
+    ```xml
+    <!-- 2) Ground‐truth plugin -->
+    <gazebo>
+        <plugin filename="libgazebo_ros_p3d.so" name="ground_truth_plugin">
+        <modelName>jackal</modelName>
+        <bodyName>base_link</bodyName>
+        <topicName>ground_truth/state</topicName>
+        <updateRate>100.0</updateRate>
+        <gaussianNoise>0.0</gaussianNoise>
+        <frameName>world</frameName>
+        </plugin>
+    </gazebo>
+    ```
+
+### Friction Coefficient:
+To alter the friction oefficient, alter lines `55-56` in file:
+
+`gym_gazebo_docker/src/jackal/jackal_description/urdf/jackal.urdf.xacro`
+
+For more information:
+https://classic.gazebosim.org/tutorials?tut=friction
+
+
+## Running and Evaluating:
 Ensure you have built and source your environment for each terminal, following the previous step. 
 
 1. Run Gazebo Simulation:
@@ -82,11 +111,3 @@ Ensure you have built and source your environment for each terminal, following t
     cd src/gym_gazebo/scripts
     python evaluate_model.py
     ```
-
-## Friction Coefficient:
-To alter the friction oefficient, alter lines `55-56` in file:
-
-`gym_gazebo_docker/src/jackal/jackal_description/urdf/jackal.urdf.xacro`
-
-For more information:
-https://classic.gazebosim.org/tutorials?tut=friction
