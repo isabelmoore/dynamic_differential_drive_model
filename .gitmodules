@@ -1,0 +1,6 @@
+[submodule "src/jackal_simulator"]
+	path = src/jackal_simulator
+	url = https://github.com/jackal/jackal_simulator.git
+[submodule "src/jackal"]
+	path = src/jackal
+	url = https://github.com/jackal/jackal.git
