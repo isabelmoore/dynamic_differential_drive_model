@@ -6,80 +6,87 @@ To set up the Gym Gazebo Docker environment, follow these steps:
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-repo/gym_gazebo_docker.git
+    git clone git@github.com:tamu-edu/afcagc_gym_gazebo.git --branch docker-ddd
+    mv afcagc_gym_gazebo gym_gazebo_docker
     cd gym_gazebo_docker
     ```
-
-2. Run the Docker container:
+2. Build submodules for Jackal
     ```bash
-    docker compose build
+    git submodule init
+    git submodule update
     ```
 
-3. Build and source:
+3. Build the Docker container: 
     ```bash
-    sc
-    build
+    docker-compose build
     ```
-
-4. Run Gazebo Simulation:
+    If on the Lambda computers, follow these steps; otherwise skip.
     ```bash
-    sim
-    ```
-
-## Testing Simulation
-
-1. Circle:
-    ```bash
-    rostopic pub /cmd_vel geometry_msgs/Twist \
-    "{linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.5}}" -r 10
+    dzdo systemctl start docker    # start docker
+    dzdo systemctl status docker    # ensure docker is running
+    dzdo docker-compose build
     ```
 
 
-2. Using `I-J-K-L` commands to manually move:
+4. Run the container:
     ```bash
-    sudo apt-get update
-    sudo apt-get install ros-noetic-teleop-twist-keyboard
-    rosrun teleop_twist_keyboard teleop_twist_keyboard.py
+    docker compose -f ~/gym_gazebo_docker/docker-compose.yml run --rm ros_noetic
     ```
-
-
-## Running and evaluate:
-1. Activating Conda Environment:
+5. Build and source: 
     ```bash
-    source /opt/conda/etc/profile.d/conda.sh
-    conda activate venv_gazebo
-    ```
-2. In one terminal, run:
-    ```bash
-    roslaunch jackal_gazebo empty_world.launch
-    ```
-
-3. In another terminal, run `evaluate_model.py`
-    ```bash
-    jackal
-    source /opt/conda/etc/profile.d/conda.sh
-    conda activate venv_gazebo
-    cd src/gym_gazebo/scripts
-    python evaluate_model.py
-    ```
-
-4. In short:
-    ```bash
-    jackal
+    cd gym_gazebo_docker/
     source docker/.bashrc
     sc
+    build
     source /opt/conda/etc/profile.d/conda.sh
     conda activate venv_gazebo
-    sim
-roslaunch jackal_gazebo spawn_jackal.launch
-roslaunch gazebo_ros empty_world.launch \
-  world_name:="$(find gym_gazebo)/worlds/empty_plugin.world" \
-  paused:=false
-roslaunch jackal_gazebo spawn_jackal.launch
+    ```
 
-    jackal
-    source /opt/conda/etc/profile.d/conda.sh
-    conda activate venv_gazebo
+
+## Running and Evaluating/Testing:
+Ensure you have built and source your environment for each terminal, following the previous step. 
+
+1. Run Gazebo Simulation:
+    ```bash
+    sim
+    ```
+    If on the Lambda computers and do not see the simulation opening, exit the container and run the following commands; otherwise skip:
+    ```bash 
+    xhost +local:root
+
+    docker-compose -f ~/gym_gazebo_docker/afcagc_gym_gazebo/docker-compose.yml run \
+    --rm \
+    -e DISPLAY=$DISPLAY \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    ros_noetic
+    ```
+
+2. (Optional) Testing the simulation:   
+    In another terminal, you can run the following commands:
+    1. Circle:
+        ```bash
+        rostopic pub /cmd_vel geometry_msgs/Twist \
+        "{linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.5}}" -r 10
+        ```
+
+    2. Using `I-J-K-L` commands to manually move:
+        ```bash
+        sudo apt-get update
+        sudo apt-get install ros-noetic-teleop-twist-keyboard
+        rosrun teleop_twist_keyboard teleop_twist_keyboard.py
+        ```
+
+
+3. Evaluating the model:
+    ```bash
     cd src/gym_gazebo/scripts
     python evaluate_model.py
     ```
+
+## Post-Processing and Tweaking:
+To alter the friction coefficient, alter lines `55-56` in file:
+
+`gym_gazebo_docker/src/jackal/jackal_description/urdf/jackal.urdf.xacro`
+
+For more information:
+https://classic.gazebosim.org/tutorials?tut=friction
