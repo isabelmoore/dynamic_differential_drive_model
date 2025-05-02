@@ -1,6 +1,6 @@
 # Gym Gazebo Docker Set Up
 
-## Command Line Instructions
+## Building and Sourcing Environment
 
 To set up the Gym Gazebo Docker environment, follow these steps:
 
@@ -32,7 +32,7 @@ To set up the Gym Gazebo Docker environment, follow these steps:
     ```bash
     docker compose -f ~/gym_gazebo_docker/docker-compose.yml run --rm ros_noetic
     ```
-5. Build and source: 
+5. Within the container, build and source: 
     ```bash
     cd gym_gazebo_docker/
     source docker/.bashrc
