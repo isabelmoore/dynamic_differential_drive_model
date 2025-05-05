@@ -19,6 +19,7 @@ Load model and evaluate
 '''
 def evaluate(model_path, episodes=50):
     # Create environment
+    print('Creating environment...')
     env = MobileRobotPathTrackEnv(timestep=1e-1, yaw_controller_frequency=25,
             path_length=50, trajectory_length=15, velocity=0.1,
             observation_lookahead=100, use_dubins=True, use_seed=True,
@@ -34,6 +35,7 @@ def evaluate(model_path, episodes=50):
         episode_reward = 0
         while not done:
             action, obs = model.predict(obs, deterministic=True)
+            print('action:', action)
             # action = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
             # action = [-0.00902939 -0.00461888 -0.01180905  0.00549364  0.01214027 -0.00688547
             # action = [-0.01, -0.005, -0.01, 0.005, 0.01, -0.007]
@@ -47,6 +49,7 @@ def evaluate(model_path, episodes=50):
     
 
 if __name__ == '__main__':
+    print('Evaluating model...')
     # evaluate(model_path='models/MetaL_10H_July19_reducedTask_best__best_reward_10000', episodes=100) -> Best model
     #evaluate(model_path='models/MetaL_10H_Aug7_100m_best__best_reward_2460000', episodes=100)
     #evaluate(model_path='models/MetaL_10H_Aug7_100m_best__best_reward_10000', episodes=100)

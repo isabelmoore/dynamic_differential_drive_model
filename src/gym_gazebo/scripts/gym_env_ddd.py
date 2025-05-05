@@ -11,7 +11,6 @@ import dubins
 
 # Local
 from vehicle_models.dynamic_differential_drive_model import DifferentialDriveModel
-from path_following.pure_pursuit import PurePursuit
 from pid import PID
 
 def plot_init():
